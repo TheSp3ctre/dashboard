@@ -1962,7 +1962,7 @@
   `).join('');
     }
 
-    function init() {
+    function redrawAllCharts() {
       updateKPIs();
       drawLineChart();
       drawRadar();
@@ -1972,6 +1972,10 @@
       drawDonut('donutSmall', DASHBOARD_DATA.loadTypes);
       buildLegend('donut2-legend', DASHBOARD_DATA.loadTypes);
       renderMapMarkers();
+    }
+
+    function init() {
+      redrawAllCharts();
       setupInteractivity();
     }
 
