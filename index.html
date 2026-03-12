@@ -1695,6 +1695,12 @@
       ctx.clearRect(0, 0, size, size);
 
       const { labels, series1, series2 } = DASHBOARD_DATA.operationalEfficiency;
+      
+      let alpha1 = 0.15, alpha2 = 0.15;
+      if (ACTIVE_FILTER === 'inventory') { alpha1 = 0.4; alpha2 = 0.05; }
+      else if (ACTIVE_FILTER === 'tanks') { alpha1 = 0.05; alpha2 = 0.4; }
+      else if (ACTIVE_FILTER === 'deliveries') { alpha1 = 0.25; alpha2 = 0.25; }
+      else if (ACTIVE_FILTER === 'alerts') { alpha1 = 0.05; alpha2 = 0.05; }
 
       const n = labels.length;
       function polar(angle, r) { return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r }; }
@@ -1758,8 +1764,8 @@
         ctx.shadowBlur = 0;
       }
 
-      drawSeries(series2, C.magenta, 0.15);
-      drawSeries(series1, C.cyan, 0.15);
+      drawSeries(series2, C.magenta, alpha2);
+      drawSeries(series1, C.cyan, alpha1);
 
       const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.4);
       grd.addColorStop(0, 'rgba(0,229,255,0.3)');
@@ -1842,8 +1848,17 @@
       const R = size * 0.46, r = size * 0.27;
       const gap = 0.022;
       let startAng = -Math.PI / 2;
+      
+      let curSegments = segments;
+      if (ACTIVE_FILTER === 'tanks') {
+        curSegments = segments.map(s => s.label === 'Operacional' || s.label === 'Em Carregamento' ? s : {...s, color: hex2rgba(s.color, 0.15)});
+      } else if (ACTIVE_FILTER === 'alerts') {
+        curSegments = segments.map(s => s.label === 'Manutenção' || s.label === 'Inativo' ? s : {...s, color: hex2rgba(s.color, 0.15)});
+      } else if (ACTIVE_FILTER) {
+        curSegments = segments.map((s, i) => i === 0 ? s : {...s, color: hex2rgba(s.color, 0.15)});
+      }
 
-      segments.forEach((seg) => {
+      curSegments.forEach((seg) => {
         const sweep = (seg.pct / 100) * Math.PI * 2 - gap;
         const midAng = startAng + sweep / 2;
         const pop = seg.pct === Math.max(...segments.map(s => s.pct)) ? 4 : 0;
@@ -1898,7 +1913,15 @@
       const R = size * 0.44, r = size * 0.28;
       let startAng = -Math.PI / 2;
       const gap = 0.025;
-      segments.forEach((seg) => {
+      
+      let curSegments = segments;
+      if (ACTIVE_FILTER === 'inventory') {
+        curSegments = segments.map((s, i) => i === 0 ? s : {...s, color: hex2rgba(s.color, 0.2)});
+      } else if (ACTIVE_FILTER) {
+        curSegments = segments.map((s, i) => i === 1 ? s : {...s, color: hex2rgba(s.color, 0.2)});
+      }
+
+      curSegments.forEach((seg) => {
         const sweep = (seg.pct / 100) * Math.PI * 2 - gap;
         ctx.beginPath();
         ctx.arc(cx, cy, R, startAng, startAng + sweep);
