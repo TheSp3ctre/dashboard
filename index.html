@@ -1791,11 +1791,26 @@
       
       // Filter Logic implementation
       if (ACTIVE_FILTER === 'inventory') {
-        currentData = data.map(v => v * 0.4); // Simulate lower data for inventory focus
+        currentData = data.map((v, i) => v * (0.4 + (i * 0.03))); // Simulate steeper growth
       } else if (ACTIVE_FILTER === 'tanks') {
-        currentData = data.map(v => v * 0.7); // Simulate partial data for tanks focus
+        currentData = data.map((v, i) => v * (0.8 - (i * 0.04))); // Simulate a drop
       } else if (ACTIVE_FILTER === 'alerts') {
-        currentData = data.map(v => v * 0.2); // Simulate drop in alerts
+        currentData = data.map(v => v * 0.2); // Simulate flat drop
+      }
+
+      // Dynamically calculate and update the growth percentage label
+      const first = currentData[0];
+      const last = currentData[currentData.length - 1];
+      const diff = ((last - first) / first * 100).toFixed(0);
+      const growthEl = document.getElementById('growth-val');
+      if (growthEl) {
+        if (diff > 0) {
+          growthEl.textContent = '+' + diff + '%';
+          growthEl.style.color = '#00E5FF'; // Cyan for positive
+        } else {
+          growthEl.textContent = diff + '%';
+          growthEl.style.color = '#ff4d4d'; // Red for negative
+        }
       }
 
       const maxD = Math.max(...DASHBOARD_DATA.deliveryGrowth.data); // Keep original max scale
@@ -2068,7 +2083,17 @@
       if (!g) return;
 
       g.innerHTML = '';
-      const markers = DASHBOARD_DATA.mapMarkers;
+      let markers = DASHBOARD_DATA.mapMarkers;
+
+      // Filter Map Markers based on active KPI Selection
+      if (ACTIVE_FILTER === 'tanks') {
+        markers = markers.filter(m => m.status === 'Ativa');
+      } else if (ACTIVE_FILTER === 'alerts') {
+        markers = markers.filter(m => m.status === 'Alerta');
+      } else if (ACTIVE_FILTER === 'inventory' || ACTIVE_FILTER === 'deliveries') {
+        // Just dim the map opacity slightly via css class on the mapWrap, or just show all points
+        document.querySelector('.br-state').style.opacity = 0.8;
+      }
 
       markers.forEach((m, i) => {
         if (m.status === "Ativa") {
