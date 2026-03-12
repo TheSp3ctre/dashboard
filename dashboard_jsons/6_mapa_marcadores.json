@@ -1,0 +1,10 @@
+[
+  { "Nome": "Base Manaus",        "Descricao": "Tanque 01 · 78% capacidade",                  "Status": "Ativa",  "X": 138, "Y": 183 },
+  { "Nome": "Base Belém",         "Descricao": "Tanque 03 · 65% capacidade",                  "Status": "Ativa",  "X": 323, "Y": 168 },
+  { "Nome": "Base São Luís",      "Descricao": "Tanque 05 · 82% capacidade",                  "Status": "Ativa",  "X": 407, "Y": 210 },
+  { "Nome": "Base Recife",        "Descricao": "Tanque 09 · 71% capacidade",                  "Status": "Ativa",  "X": 502, "Y": 264 },
+  { "Nome": "Base São Paulo",     "Descricao": "Tanque 12 · 91% capacidade",                  "Status": "Ativa",  "X": 360, "Y": 455 },
+  { "Nome": "Base Porto Alegre",  "Descricao": "Tanque 22 · 58% capacidade",                  "Status": "Ativa",  "X": 298, "Y": 559 },
+  { "Nome": "⚠ Tanque 08",       "Descricao": "Nível crítico · Intervenção necessária",       "Status": "Alerta", "X": 451, "Y": 322 },
+  { "Nome": "⚠ Tanque 14",       "Descricao": "Manutenção urgente · Fora de operação",        "Status": "Alerta", "X": 349, "Y": 361 }
+]

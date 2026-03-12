@@ -1,0 +1,9 @@
+[
+  { "Status": "Operacional",       "Percentual": 21 },
+  { "Status": "Em Carregamento",   "Percentual": 10 },
+  { "Status": "Em Trânsito",       "Percentual": 13 },
+  { "Status": "Descarregando",     "Percentual": 15 },
+  { "Status": "Stand-by",          "Percentual": 17 },
+  { "Status": "Manutenção",        "Percentual": 10 },
+  { "Status": "Inativo",           "Percentual": 14 }
+]

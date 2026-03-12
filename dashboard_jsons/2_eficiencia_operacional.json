@@ -1,0 +1,9 @@
+[
+  { "Indicador": "Entrega",    "Serie_Atual": 0.85, "Serie_Meta": 0.50 },
+  { "Indicador": "Estoque",    "Serie_Atual": 0.70, "Serie_Meta": 0.85 },
+  { "Indicador": "Segurança",  "Serie_Atual": 0.90, "Serie_Meta": 0.60 },
+  { "Indicador": "Eficiência", "Serie_Atual": 0.60, "Serie_Meta": 0.90 },
+  { "Indicador": "Custo",      "Serie_Atual": 0.75, "Serie_Meta": 0.45 },
+  { "Indicador": "Tempo",      "Serie_Atual": 0.55, "Serie_Meta": 0.80 },
+  { "Indicador": "Qualidade",  "Serie_Atual": 0.80, "Serie_Meta": 0.65 }
+]

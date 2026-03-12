@@ -1,0 +1,19 @@
+[
+  { "Periodo": "Mar", "Entregas": 35 },
+  { "Periodo": "Abr", "Entregas": 38 },
+  { "Periodo": "Mai", "Entregas": 32 },
+  { "Periodo": "Jun", "Entregas": 45 },
+  { "Periodo": "Jul", "Entregas": 42 },
+  { "Periodo": "Ago", "Entregas": 50 },
+  { "Periodo": "Set", "Entregas": 55 },
+  { "Periodo": "Out", "Entregas": 60 },
+  { "Periodo": "Nov", "Entregas": 58 },
+  { "Periodo": "Dez", "Entregas": 65 },
+  { "Periodo": "Jan", "Entregas": 72 },
+  { "Periodo": "Fev", "Entregas": 80 },
+  { "Periodo": "Mar2", "Entregas": 90 },
+  { "Periodo": "Abr2", "Entregas": 95 },
+  { "Periodo": "Mai2", "Entregas": 105 },
+  { "Periodo": "Jun2", "Entregas": 115 },
+  { "Periodo": "Jul2", "Entregas": 125 }
+]

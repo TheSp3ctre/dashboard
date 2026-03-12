@@ -1,0 +1,12 @@
+[
+  { "Mes": "Mar", "Base Norte": 42, "Base Sudeste": 22, "Base Sul": 55 },
+  { "Mes": "Abr", "Base Norte": 44, "Base Sudeste": 28, "Base Sul": 57 },
+  { "Mes": "Mai", "Base Norte": 43, "Base Sudeste": 34, "Base Sul": 58 },
+  { "Mes": "Jun", "Base Norte": 46, "Base Sudeste": 42, "Base Sul": 62 },
+  { "Mes": "Jul", "Base Norte": 55, "Base Sudeste": 60, "Base Sul": 65 },
+  { "Mes": "Ago", "Base Norte": 68, "Base Sudeste": 80, "Base Sul": 72 },
+  { "Mes": "Set", "Base Norte": 78, "Base Sudeste": 95, "Base Sul": 78 },
+  { "Mes": "Out", "Base Norte": 90, "Base Sudeste": 108, "Base Sul": 88 },
+  { "Mes": "Nov", "Base Norte": 110, "Base Sudeste": 122, "Base Sul": 100 },
+  { "Mes": "Dez", "Base Norte": 125, "Base Sudeste": 138, "Base Sul": 115 }
+]

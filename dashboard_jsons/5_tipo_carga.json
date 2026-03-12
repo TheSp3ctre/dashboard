@@ -1,0 +1,5 @@
+[
+  { "Tipo": "GLP — Gás Liquefeito de Petróleo", "Percentual": 48 },
+  { "Tipo": "GNV — Gás Natural Veicular",        "Percentual": 37 },
+  { "Tipo": "GNL — Gás Natural Liquefeito",      "Percentual": 15 }
+]
