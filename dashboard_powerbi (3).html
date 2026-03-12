@@ -969,6 +969,67 @@
     .hidden-input {
       display: none;
     }
+
+    /* ═══════════ RESPONSIVE DESIGN (MEDIA QUERIES) ═══════════ */
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: 1fr 2فر 1fr;
+        grid-template-areas:
+          "radar map map"
+          "growth map map"
+          "fleet load load"
+          "flow flow flow";
+        grid-template-rows: auto auto auto 400px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .main-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "map map"
+          "radar growth"
+          "fleet load"
+          "flow flow";
+        grid-template-rows: 400px auto auto 400px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
+      .main-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "map"
+          "flow"
+          "radar"
+          "growth"
+          "fleet"
+          "load";
+        grid-template-rows: 400px 300px minmax(300px, auto) minmax(300px, auto) minmax(300px, auto) minmax(300px, auto);
+      }
+      .donut-wrap {
+        flex-direction: column;
+        align-items: center;
+      }
+      .pizza2-wrap {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .pizza2-bracket {
+        transform: rotate(90deg);
+      }
+    }
   </style>
 </head>
 
@@ -1313,11 +1374,14 @@
       return `rgba(${r},${g},${b},${a})`;
     }
 
-    // =========================================================================
-    // ► CENTRAL DE DADOS (PREPARADO PARA RECEBER DADOS REAIS)
-    // =========================================================================
-    // Este objeto centraliza tudo o que é exibido no dashboard. 
-    // Para conectar ao PowerBI ou Excel via API, basta atualizar este objeto.
+    /**
+     * @constant {Object} DASHBOARD_DATA
+     * @description Core state management object functioning as the central reactive store for the DOM. 
+     * Implementations leveraging external APIs (e.g., via fetch or WebSockets) must mutate this structure 
+     * and subsequently trigger a re-render lifecycle utilizing `redrawAllCharts()` and `updateKPIs()`. 
+     * Schema validation is implicitly enforced within rendering functions; deviation from schema signatures 
+     * will result in Canvas rendering exceptions.
+     */
     let DASHBOARD_DATA = {
       kpis: {
         inventory: { val: "78%", sub: "▲ 308.008 m³ total", bars: [35, 50, 42, 60, 55, 70, 78] },
@@ -1426,9 +1490,14 @@
       if (growthEl) growthEl.textContent = DASHBOARD_DATA.deliveryGrowth.highlight;
     }
 
-    // =========================================================================
-    // ► MOTOR DE IMPORTAÇÃO (POWERBI / EXCEL)
-    // =========================================================================
+    /**
+     * @function importData
+     * @param {HTMLInputElement} input - The DOM Node capturing the file stream.
+     * @param {string} chartKey - Contextual key mapping the incoming byte array to the corresponding store node.
+     * @description Handles asynchronous I/O streams for file buffering. Acts as the primary ETL abstraction 
+     * for JSON/XLSX payloads traversing the client boundary. Parses the Data Buffer into standardized JSON arrays 
+     * prior to passing contexts to the translation bridge `processImportedData`.
+     */
     function importData(input, chartKey) {
       if (!input.files || !input.files[0]) return;
       const file = input.files[0];
@@ -1459,21 +1528,25 @@
       else reader.readAsArrayBuffer(file);
     }
 
+    /**
+     * @function processImportedData
+     * @param {string} key - Enumerated reference dictating the required transformation strategy and destination sub-tree.
+     * @param {Array<Object>} data - Deserialized JSON payload representing tabular data frames.
+     * @description Core ETL Transformation Bridge. Implements dynamic schema reflection to structurally infer columns,
+     * remap coordinate spaces, and sanitize floating-point representations prior to mutating the singleton reactive store.
+     * Integrates context-aware heuristics (e.g., dynamic maxima synthesis for geometric bounds resolution or Delta% extrapolations)
+     * tightly coupled to the underlying mathematical dependencies of the Canvas execution runtime.
+     */
     function processImportedData(key, data) {
       if (!data || data.length === 0) return;
 
       if (key === 'distributionFlow') {
-        // DETECÇÃO AUTOMÁTICA DE COLUNAS:
-        // Pega todos os nomes de colunas da primeira linha
         const allColumns = Object.keys(data[0]);
-        // A primeira coluna geralmente é o Mês ou Data
         const labelCol = allColumns[0];
-        // As outras colunas são as bases (Norte, Sul, etc)
         const seriesCols = allColumns.slice(1);
 
         DASHBOARD_DATA.distributionFlow.months = data.map(item => item[labelCol]);
 
-        // Reconstrói as séries dinamicamente
         const colors = [C.cyan, C.magenta, C.indigo, C.orange, C.teal];
         DASHBOARD_DATA.distributionFlow.series = seriesCols.map((colName, idx) => ({
           label: colName,
@@ -1481,7 +1554,6 @@
           data: data.map(item => parseFloat(item[colName]) || 0)
         }));
 
-        // Ajusta o valor máximo do gráfico automaticamente baseado no maior dado
         const allValues = DASHBOARD_DATA.distributionFlow.series.flatMap(s => s.data);
         DASHBOARD_DATA.distributionFlow.maxVal = Math.ceil(Math.max(...allValues) * 1.2 / 10) * 10;
       }
@@ -1507,7 +1579,6 @@
         const allColumns = Object.keys(data[0]);
         DASHBOARD_DATA.deliveryGrowth.labels = data.map(item => item[allColumns[0]]);
         DASHBOARD_DATA.deliveryGrowth.data = data.map(item => parseFloat(item[allColumns[1]]) || 0);
-        // Calcula o crescimento do último vs primeiro automaticamente
         const first = DASHBOARD_DATA.deliveryGrowth.data[0];
         const last = DASHBOARD_DATA.deliveryGrowth.data[DASHBOARD_DATA.deliveryGrowth.data.length - 1];
         const diff = ((last - first) / first * 100).toFixed(0);
@@ -1541,7 +1612,6 @@
       const gW = W - pad.l - pad.r;
       const gH = H - pad.t - pad.b;
 
-      // Filter Logic (Power BI Style Focus)
       let currentSeries = series;
       if (ACTIVE_FILTER === 'inventory') {
         currentSeries = series.map((s, i) => i === 0 ? s : {...s, color: hex2rgba(s.color, 0.15)});
@@ -1549,7 +1619,6 @@
         currentSeries = series.map((s, i) => ({...s, color: hex2rgba(s.color, i === 1 ? 1 : 0.15)}));
       }
 
-      // Grid
       ctx.beginPath();
       ctx.strokeStyle = 'rgba(0,229,255,0.08)';
       for (let i = 0; i <= 4; i++) {
@@ -1622,7 +1691,6 @@
       const ctx = canvas.getContext('2d');
       const size = Math.min(canvas.offsetWidth || 220, canvas.offsetHeight || 220);
       canvas.width = size; canvas.height = size;
-      // Smaller R so labels fit inside the canvas with padding
       const cx = size / 2, cy = size / 2, R = size * 0.28;
       ctx.clearRect(0, 0, size, size);
 
@@ -1654,7 +1722,6 @@
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Label position with safe margin from chart edge
         const lp = polar(ang, R * 1.35);
 
         const cosA = Math.cos(ang);
@@ -1742,13 +1809,11 @@
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Desenhar labels de meses (todos)
       labels.forEach((m, i) => {
         const x = pad.l + (i / (labels.length - 1)) * gW;
         ctx.fillStyle = 'rgba(200,230,255,0.6)';
         ctx.font = '9px Share Tech Mono';
         ctx.textAlign = 'center';
-        // Mostrar todos os meses, rotacionar se necessário ou reduzir fonte
         ctx.fillText(m, x, H - 10);
       });
     }
@@ -1859,12 +1924,6 @@
   `).join('');
     }
 
-
-    // ◄ FIM DADOS
-
-
-    // ◄ FIM DADOS
-
     function init() {
       updateKPIs();
       drawLineChart();
@@ -1875,8 +1934,6 @@
       drawDonut('donutSmall', DASHBOARD_DATA.loadTypes);
       buildLegend('donut2-legend', DASHBOARD_DATA.loadTypes);
       renderMapMarkers();
-
-      // Adicionando ouvintes de eventos para interatividade
       setupInteractivity();
     }
 
@@ -1934,7 +1991,6 @@
     else window.addEventListener('load', init);
     window.addEventListener('resize', init);
 
-    // ====== BRAZIL MAP: per-state color depth ======
     (function () {
       const sc = { "AM": "#0d2f60", "PA": "#0e3068", "MT": "#0c2c58", "BA": "#112e62", "MG": "#0f2e60", "GO": "#0d2c58", "MS": "#0b2a54", "TO": "#0e2e60", "MA": "#13366e", "PI": "#102e62", "CE": "#0d2e64", "RN": "#0c2c5c", "PB": "#0b2a58", "PE": "#0d2e62", "AL": "#0c2e60", "SE": "#0b2a5e", "RJ": "#112e62", "SP": "#133468", "PR": "#0f3064", "SC": "#0d2e60", "RS": "#0e326a", "RO": "#0b2852", "AC": "#09244e", "RR": "#0a2652", "AP": "#0b2854", "ES": "#0d2c60", "DF": "#1a4e8c" };
       document.querySelectorAll('.br-state').forEach(el => {
@@ -2000,7 +2056,6 @@
         tip.style.top = (e.clientY - 20) + 'px';
       }
 
-      // Rebind events to new elements
       g.querySelectorAll('.bm-dot-green, .bm-alert-tri').forEach(el => {
         el.addEventListener('mouseenter', () => {
           tip.innerHTML = `<strong>${el.dataset.m}</strong><span class="msub">${el.dataset.d}</span>`;
