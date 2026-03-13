@@ -2009,16 +2009,7 @@
         tip.classList.remove('show');
       });
 
-      ['donutBig', 'donutSmall', 'radarChart', 'areaChart'].forEach(id => {
-        const can = document.getElementById(id);
-        can.addEventListener('mousemove', (e) => {
-          tip.innerHTML = `<strong>Visão Detalhada</strong><span>Dados analíticos em tempo real</span>`;
-          tip.style.left = (e.clientX + 15) + 'px';
-          tip.style.top = (e.clientY - 20) + 'px';
-          tip.classList.add('show');
-        });
-        can.addEventListener('mouseleave', () => tip.classList.remove('show'));
-      });
+
     }
 
     if (document.readyState === 'complete') init();
