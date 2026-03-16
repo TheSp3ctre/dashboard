@@ -1617,6 +1617,23 @@
           DASHBOARD_DATA.kpis[kpi].bars = String(item[allColumns[2]]).split(',').map(Number);
         }
       }
+
+      else if (key === 'mapMarkers') {
+        const branchesMap = new Map();
+        data.forEach(row => {
+          if (row.id && (row.id.startsWith('br-') || row.id.startsWith('warn-'))) {
+            branchesMap.set(row.id, {
+              id: row.id, name: row.name || "", desc: row.desc || "",
+              status: row.id.startsWith('warn-') ? "Alerta" : (row.status || "Ativa"),
+              x: parseFloat(row.x) || 0, y: parseFloat(row.y) || 0, customers: []
+            });
+          } else if (row.branch_id && branchesMap.has(row.branch_id)) {
+            const b = branchesMap.get(row.branch_id);
+            b.customers.push({ name: row.name || "", dropsize: parseFloat(row.dropsize) || 0, x: parseFloat(row.x) || 0, y: parseFloat(row.y) || 0 });
+          }
+        });
+        DASHBOARD_DATA.mapMarkers = Array.from(branchesMap.values());
+      }
     }
 
     function drawLineChart(highlightIdx = -1) {
