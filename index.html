@@ -1031,6 +1031,37 @@
         transform: rotate(90deg);
       }
     }
+    .map-back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 100;
+      background: rgba(6, 13, 26, 0.8);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+    }
+
+    .map-back-btn:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 20px var(--cyan);
+    }
+    
+    .map-back-btn.show {
+      display: flex;
+    }
   </style>
 </head>
 
@@ -1144,7 +1175,10 @@
         </div>
 
         <div class="map-wrap-inner" id="mapWrap"
-          style="margin:4px; display:flex; align-items:center; justify-content:center;">
+          style="margin:4px; display:flex; align-items:center; justify-content:center; position: relative;">
+          <button id="mapBackBtn" class="map-back-btn" onclick="resetMapZoom()">
+            <i class="ph ph-arrow-left"></i> VOLTAR
+          </button>
           <svg id="brazilMap" viewBox="-20 -20 580 640" xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="xMidYMid meet" shape-rendering="optimizeSpeed"
             style="position:absolute;inset:0;width:100%;height:100%;display:block;transform:translateZ(0)">
@@ -1418,69 +1452,7 @@
         { label: 'GNV — Gás Natural Veicular', pct: 37, color: C.cyan },
         { label: 'GNL — Gás Natural Liquefeito', pct: 15, color: C.indigo }
       ],
-      mapMarkers: [
-        { 
-          id: "br-manaus",
-          name: "Base Manaus", 
-          desc: "Tanque 01 · 78% capacidade", 
-          status: "Ativa", 
-          x: 138, y: 183,
-          customers: [
-            { name: "Cliente AM 1", dropsize: 15.5, x: 145, y: 195 },
-            { name: "Cliente AM 2", dropsize: 12.0, x: 130, y: 175 },
-            { name: "Cliente AM 3", dropsize: 18.2, x: 155, y: 170 }
-          ]
-        },
-        { 
-          id: "br-belem",
-          name: "Base Belém", 
-          desc: "Tanque 03 · 65% capacidade", 
-          status: "Ativa", 
-          x: 323, y: 168,
-          customers: [
-            { name: "Cliente PA 1", dropsize: 22.1, x: 335, y: 180 },
-            { name: "Cliente PA 2", dropsize: 14.5, x: 310, y: 155 }
-          ]
-        },
-        { 
-          id: "br-sluis",
-          name: "Base São Luís", 
-          desc: "Tanque 05 · 82% capacidade", 
-          status: "Ativa", 
-          x: 407, y: 210,
-          customers: []
-        },
-        { 
-          id: "br-recife",
-          name: "Base Recife", 
-          desc: "Tanque 09 · 71% capacidade", 
-          status: "Ativa", 
-          x: 502, y: 264,
-          customers: []
-        },
-        { 
-          id: "br-spaulo",
-          name: "Base São Paulo", 
-          desc: "Tanque 12 · 91% capacidade", 
-          status: "Ativa", 
-          x: 360, y: 455,
-          customers: [
-            { name: "Cliente SP 1", dropsize: 30.5, x: 375, y: 470 },
-            { name: "Cliente SP 2", dropsize: 25.0, x: 345, y: 440 },
-            { name: "Cliente SP 3", dropsize: 28.8, x: 380, y: 445 }
-          ]
-        },
-        { 
-          id: "br-palegre",
-          name: "Base Porto Alegre", 
-          desc: "Tanque 22 · 58% capacidade", 
-          status: "Ativa", 
-          x: 298, y: 559,
-          customers: []
-        },
-        { id: "warn-08", name: "⚠ Tanque 08", desc: "Nível crítico · Intervenção necessária", status: "Alerta", x: 451, y: 322, customers: [] },
-        { id: "warn-14", name: "⚠ Tanque 14", desc: "Manutenção urgente · Fora de operação", status: "Alerta", x: 349, y: 361, customers: [] }
-      ]
+      mapMarkers: []
     };
 
     let ACTIVE_FILTER = null;
@@ -2168,74 +2140,83 @@
       const x = branch.x - zoomSize/2;
       const y = branch.y - zoomSize/2;
       
+    function zoomToBranch(branch) {
+      const svg = document.getElementById('brazilMap');
+      const backBtn = document.getElementById('mapBackBtn');
+      SELECTED_BRANCH = branch;
+      
+      const zoomSize = 180;
+      const x = branch.x - zoomSize/2;
+      const y = branch.y - zoomSize/2;
+      
       svg.style.transition = "viewBox 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
       svg.setAttribute('viewBox', `${x} ${y} ${zoomSize} ${zoomSize}`);
       
+      if (backBtn) backBtn.classList.add('show');
       renderMapMarkers();
       showToast(`Focado em: ${branch.name}`);
     }
 
     function resetMapZoom() {
       const svg = document.getElementById('brazilMap');
+      const backBtn = document.getElementById('mapBackBtn');
       SELECTED_BRANCH = null;
       svg.style.transition = "viewBox 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
       svg.setAttribute('viewBox', "-20 -20 580 640");
+      if (backBtn) backBtn.classList.remove('show');
       renderMapMarkers();
     }
 
     function renderMapMarkers() {
       const g = document.getElementById('dynamicMarkers');
-      const tip = document.getElementById('mapTooltip');
       const legend = document.getElementById('mapLegend');
       if (!g) return;
 
       g.innerHTML = '';
-      let markers = DASHBOARD_DATA.mapMarkers;
+      let markers = DASHBOARD_DATA.mapMarkers || [];
+
+      if (!markers.length) {
+        legend.innerHTML = '<div class="ml-item" style="opacity:0.5">Aguardando carregamento de dados...</div>';
+        return;
+      }
 
       if (SELECTED_BRANCH) {
-        // Dynamic Legend for Selected Branch
         legend.innerHTML = `
           <div class="ml-item"><div class="ml-green"></div>Filial: ${SELECTED_BRANCH.name}</div>
           <div class="ml-item"><div class="ml-orange" style="border-radius:50%; background:var(--magenta)"></div>Clientes (${SELECTED_BRANCH.customers.length})</div>
         `;
 
-        // Render Back Button in SVG
-        g.innerHTML += `
-          <g style="cursor:pointer" onclick="resetMapZoom()">
-            <rect x="${SELECTED_BRANCH.x - 85}" y="${SELECTED_BRANCH.y - 85}" width="60" height="18" rx="4" fill="rgba(6,13,26,0.9)" stroke="var(--cyan)" stroke-width="1" />
-            <text x="${SELECTED_BRANCH.x - 55}" y="${SELECTED_BRANCH.y - 73}" text-anchor="middle" font-family="Share Tech Mono" font-size="8" fill="var(--cyan)" font-weight="bold">← VOLTAR</text>
-          </g>
-        `;
-
-        // Render Customers
+        const fragment = document.createDocumentFragment();
         SELECTED_BRANCH.customers.forEach((c) => {
-          g.innerHTML += `
-            <g style="cursor:pointer">
-              <circle class="bm-marker-node" cx="${c.x}" cy="${c.y}" r="4" fill="var(--magenta)" stroke="#fff" stroke-width="0.5" 
-                data-m="${c.name}" data-d="Dropsize Médio: ${c.dropsize}" />
-              <rect x="${c.x + 6}" y="${c.y - 12}" width="25" height="12" rx="2" fill="rgba(0,0,0,0.6)" pointer-events="none" />
-              <text x="${c.x + 8}" y="${c.y - 3}" font-family="Orbitron" font-size="7" fill="#fff" font-weight="900" pointer-events="none">${c.dropsize}</text>
-              <text x="${c.x + 6}" y="${c.y + 10}" font-family="Share Tech Mono" font-size="5" fill="rgba(200,230,255,0.8)" pointer-events="none">Dropsize Médio</text>
-            </g>
+          const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          group.style.cursor = "pointer";
+          group.innerHTML = `
+            <circle class="bm-marker-node" cx="${c.x}" cy="${c.y}" r="4" fill="var(--magenta)" stroke="#fff" stroke-width="0.5" 
+              data-m="${c.name}" data-d="Dropsize Médio: ${c.dropsize}" />
+            <rect x="${c.x + 6}" y="${c.y - 12}" width="25" height="12" rx="2" fill="rgba(0,0,0,0.6)" pointer-events="none" />
+            <text x="${c.x + 8}" y="${c.y - 3}" font-family="Orbitron" font-size="7" fill="#fff" font-weight="900" pointer-events="none">${c.dropsize}</text>
+            <text x="${c.x + 6}" y="${c.y + 10}" font-family="Share Tech Mono" font-size="5" fill="rgba(200,230,255,0.8)" pointer-events="none">Dropsize Médio</text>
           `;
+          fragment.appendChild(group);
         });
 
-        // Branch Highlight
-        g.innerHTML += `
+        const highlight = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        highlight.innerHTML = `
            <circle class="bm-ring-outer" cx="${SELECTED_BRANCH.x}" cy="${SELECTED_BRANCH.y}" r="12" />
            <circle class="bm-marker-node bm-dot-green" cx="${SELECTED_BRANCH.x}" cy="${SELECTED_BRANCH.y}" r="6" 
              data-m="${SELECTED_BRANCH.name}" data-d="${SELECTED_BRANCH.desc}" />
         `;
+        fragment.appendChild(highlight);
+        g.appendChild(fragment);
       } else {
-        // Default Legend
         legend.innerHTML = `
           <div class="ml-item"><div class="ml-green"></div>Filiais (${markers.length})</div>
         `;
 
-        // Normal View (Only Branches)
+        const fragment = document.createDocumentFragment();
         markers.forEach((m, i) => {
-          const delay = (i * 0.3) + "s";
-          const delayMid = (i * 0.3 + 0.45) + "s";
+          const delay = (i * 0.05) + "s";
+          const delayMid = (i * 0.05 + 0.1) + "s";
           
           const branchGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
           branchGroup.style.cursor = "pointer";
@@ -2246,24 +2227,40 @@
             <circle class="bm-marker-node bm-dot-green" cx="${m.x}" cy="${m.y}" r="5" data-m="${m.name}" data-d="${m.desc}" />
             <circle class="bm-dot-white" cx="${m.x}" cy="${m.y}" r="2" pointer-events="none" />
           `;
-          g.appendChild(branchGroup);
+          fragment.appendChild(branchGroup);
         });
+        g.appendChild(fragment);
       }
+    }
 
-      function pos(e) {
+    // Initialize Event Delegation for Tooltips once
+    (function initMapTooltips() {
+      const g = document.getElementById('dynamicMarkers');
+      const tip = document.getElementById('mapTooltip');
+      if (!g || !tip) return;
+
+      const pos = (e) => {
         tip.style.left = (e.clientX + 15) + 'px';
         tip.style.top = (e.clientY - 20) + 'px';
-      }
+      };
 
-      g.querySelectorAll('.bm-marker-node').forEach(el => {
-        el.addEventListener('mouseenter', () => {
+      g.addEventListener('mouseover', (e) => {
+        const el = e.target.closest('.bm-marker-node');
+        if (el) {
           tip.innerHTML = `<strong>${el.dataset.m}</strong><span class="msub">${el.dataset.d}</span>`;
           tip.classList.add('show');
-        });
-        el.addEventListener('mousemove', pos);
-        el.addEventListener('mouseleave', () => tip.classList.remove('show'));
+        }
       });
-    }
+
+      g.addEventListener('mousemove', (e) => {
+        if (tip.classList.contains('show')) pos(e);
+      });
+
+      g.addEventListener('mouseout', (e) => {
+        const el = e.target.closest('.bm-marker-node');
+        if (el) tip.classList.remove('show');
+      });
+    })();
   </script>
 </body>
 
