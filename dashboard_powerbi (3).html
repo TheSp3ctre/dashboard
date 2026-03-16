@@ -1621,15 +1621,39 @@
       else if (key === 'mapMarkers') {
         const branchesMap = new Map();
         data.forEach(row => {
+          // If it's a branch (has it's own ID)
           if (row.id && (row.id.startsWith('br-') || row.id.startsWith('warn-'))) {
-            branchesMap.set(row.id, {
-              id: row.id, name: row.name || "", desc: row.desc || "",
+            const branch = {
+              id: row.id, 
+              name: row.name || "", 
+              desc: row.desc || "",
               status: row.id.startsWith('warn-') ? "Alerta" : (row.status || "Ativa"),
-              x: parseFloat(row.x) || 0, y: parseFloat(row.y) || 0, customers: []
-            });
-          } else if (row.branch_id && branchesMap.has(row.branch_id)) {
+              x: parseFloat(row.x) || 0, 
+              y: parseFloat(row.y) || 0, 
+              customers: []
+            };
+            
+            // If data is already nested (from JSON)
+            if (Array.isArray(row.customers)) {
+              branch.customers = row.customers.map(c => ({
+                name: c.name || "",
+                dropsize: parseFloat(c.dropsize) || 0,
+                x: parseFloat(c.x) || 0,
+                y: parseFloat(c.y) || 0
+              }));
+            }
+            
+            branchesMap.set(row.id, branch);
+          } 
+          // If it's a flat customer row (has branch_id)
+          else if (row.branch_id && branchesMap.has(row.branch_id)) {
             const b = branchesMap.get(row.branch_id);
-            b.customers.push({ name: row.name || "", dropsize: parseFloat(row.dropsize) || 0, x: parseFloat(row.x) || 0, y: parseFloat(row.y) || 0 });
+            b.customers.push({ 
+              name: row.name || "", 
+              dropsize: parseFloat(row.dropsize) || 0, 
+              x: parseFloat(row.x) || 0, 
+              y: parseFloat(row.y) || 0 
+            });
           }
         });
         DASHBOARD_DATA.mapMarkers = Array.from(branchesMap.values());
