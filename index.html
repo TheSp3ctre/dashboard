@@ -1179,6 +1179,9 @@
           <button id="mapBackBtn" class="map-back-btn" onclick="resetMapZoom()">
             <i class="ph ph-arrow-left"></i> VOLTAR
           </button>
+          <button id="mapToggleBtn" class="map-back-btn show" onclick="toggleMapValues()" style="left: auto; right: 15px; border-color: var(--magenta); color: var(--magenta); box-shadow: 0 0 15px rgba(224, 64, 251, 0.2);">
+            <i class="ph ph-eye-slash"></i> DESATIVAR VALORES
+          </button>
           <svg id="brazilMap" viewBox="-20 -20 580 640" xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="xMidYMid meet" shape-rendering="optimizeSpeed"
             style="position:absolute;inset:0;width:100%;height:100%;display:block;transform:translateZ(0)">
@@ -1455,6 +1458,7 @@
       mapMarkers: []
     };
 
+    let MAP_VALUES_ENABLED = true;
     let ACTIVE_FILTER = null;
 
     function showToast(msg) {
@@ -2158,6 +2162,17 @@
       renderMapMarkers();
     }
 
+    function toggleMapValues() {
+      MAP_VALUES_ENABLED = !MAP_VALUES_ENABLED;
+      const btn = document.getElementById('mapToggleBtn');
+      if (btn) {
+        btn.innerHTML = MAP_VALUES_ENABLED ? 
+          '<i class="ph ph-eye-slash"></i> DESATIVAR VALORES' : 
+          '<i class="ph ph-eye"></i> ATIVAR VALORES';
+      }
+      renderMapMarkers();
+    }
+
     function renderMapMarkers() {
       const g = document.getElementById('dynamicMarkers');
       const legend = document.getElementById('mapLegend');
@@ -2181,12 +2196,17 @@
         SELECTED_BRANCH.customers.forEach((c) => {
           const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
           group.style.cursor = "pointer";
+          let valContent = '';
+          if (MAP_VALUES_ENABLED) {
+            valContent = `
+              <text x="${c.x}" y="${c.y}" font-family="Orbitron" font-size="7" fill="#fff" font-weight="900" text-anchor="middle" alignment-baseline="central" pointer-events="none">${c.dropsize}</text>
+              <text x="${c.x}" y="${c.y + 14}" font-family="Share Tech Mono" font-size="5" fill="rgba(200,230,255,0.8)" text-anchor="middle" pointer-events="none">Dropsize Médio</text>
+            `;
+          }
           group.innerHTML = `
-            <circle class="bm-marker-node" cx="${c.x}" cy="${c.y}" r="4" fill="var(--magenta)" stroke="#fff" stroke-width="0.5" 
+            <circle class="bm-marker-node" cx="${c.x}" cy="${c.y}" r="8" fill="var(--magenta)" stroke="#fff" stroke-width="0.5" 
               data-m="${c.name}" data-d="Dropsize Médio: ${c.dropsize}" />
-            <rect x="${c.x + 6}" y="${c.y - 12}" width="25" height="12" rx="2" fill="rgba(0,0,0,0.6)" pointer-events="none" />
-            <text x="${c.x + 8}" y="${c.y - 3}" font-family="Orbitron" font-size="7" fill="#fff" font-weight="900" pointer-events="none">${c.dropsize}</text>
-            <text x="${c.x + 6}" y="${c.y + 10}" font-family="Share Tech Mono" font-size="5" fill="rgba(200,230,255,0.8)" pointer-events="none">Dropsize Médio</text>
+            ${valContent}
           `;
           fragment.appendChild(group);
         });
