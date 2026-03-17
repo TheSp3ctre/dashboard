@@ -2197,23 +2197,20 @@
         `;
 
         const fragment = document.createDocumentFragment();
-        SELECTED_BRANCH.customers.forEach((c) => {
-          const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-          group.style.cursor = "pointer";
-          let valContent = '';
-          if (MAP_VALUES_ENABLED) {
-            valContent = `
+        
+        if (MAP_VALUES_ENABLED) {
+          SELECTED_BRANCH.customers.forEach((c) => {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.style.cursor = "pointer";
+            group.innerHTML = `
+              <circle class="bm-marker-node" cx="${c.x}" cy="${c.y}" r="8" fill="var(--magenta)" stroke="#fff" stroke-width="0.5" 
+                data-m="${c.name}" data-d="Dropsize Médio: ${c.dropsize}" />
               <text x="${c.x}" y="${c.y}" font-family="Orbitron" font-size="5.5" fill="#fff" font-weight="900" text-anchor="middle" alignment-baseline="central" pointer-events="none">${c.dropsize}</text>
               <text x="${c.x}" y="${c.y + 14}" font-family="Share Tech Mono" font-size="5" fill="rgba(200,230,255,0.8)" text-anchor="middle" pointer-events="none">Dropsize Médio</text>
             `;
-          }
-          group.innerHTML = `
-            <circle class="bm-marker-node" cx="${c.x}" cy="${c.y}" r="8" fill="var(--magenta)" stroke="#fff" stroke-width="0.5" 
-              data-m="${c.name}" data-d="Dropsize Médio: ${c.dropsize}" />
-            ${valContent}
-          `;
-          fragment.appendChild(group);
-        });
+            fragment.appendChild(group);
+          });
+        }
 
         const highlight = document.createElementNS("http://www.w3.org/2000/svg", "g");
         highlight.innerHTML = `
