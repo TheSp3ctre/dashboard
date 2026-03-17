@@ -1179,7 +1179,7 @@
           <button id="mapBackBtn" class="map-back-btn" onclick="resetMapZoom()">
             <i class="ph ph-arrow-left"></i> VOLTAR
           </button>
-          <button id="mapToggleBtn" class="map-back-btn show" onclick="toggleMapValues()" style="left: auto; right: 15px; border-color: var(--magenta); color: var(--magenta); box-shadow: 0 0 15px rgba(224, 64, 251, 0.2);">
+          <button id="mapToggleBtn" class="map-back-btn" onclick="toggleMapValues()" style="left: auto; right: 15px; display: none;">
             <i class="ph ph-eye-slash"></i> DESATIVAR VALORES
           </button>
           <svg id="brazilMap" viewBox="-20 -20 580 640" xmlns="http://www.w3.org/2000/svg"
@@ -2148,6 +2148,8 @@
       svg.setAttribute('viewBox', `${x} ${y} ${zoomSize} ${zoomSize}`);
       
       if (backBtn) backBtn.classList.add('show');
+      const toggleBtn = document.getElementById('mapToggleBtn');
+      if (toggleBtn) toggleBtn.style.display = 'flex';
       renderMapMarkers();
       showToast(`Focado em: ${branch.name}`);
     }
@@ -2155,10 +2157,12 @@
     function resetMapZoom() {
       const svg = document.getElementById('brazilMap');
       const backBtn = document.getElementById('mapBackBtn');
+      const toggleBtn = document.getElementById('mapToggleBtn');
       SELECTED_BRANCH = null;
       svg.style.transition = "viewBox 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
       svg.setAttribute('viewBox', "-20 -20 580 640");
       if (backBtn) backBtn.classList.remove('show');
+      if (toggleBtn) toggleBtn.style.display = 'none';
       renderMapMarkers();
     }
 
@@ -2199,7 +2203,7 @@
           let valContent = '';
           if (MAP_VALUES_ENABLED) {
             valContent = `
-              <text x="${c.x}" y="${c.y}" font-family="Orbitron" font-size="7" fill="#fff" font-weight="900" text-anchor="middle" alignment-baseline="central" pointer-events="none">${c.dropsize}</text>
+              <text x="${c.x}" y="${c.y}" font-family="Orbitron" font-size="5.5" fill="#fff" font-weight="900" text-anchor="middle" alignment-baseline="central" pointer-events="none">${c.dropsize}</text>
               <text x="${c.x}" y="${c.y + 14}" font-family="Share Tech Mono" font-size="5" fill="rgba(200,230,255,0.8)" text-anchor="middle" pointer-events="none">Dropsize Médio</text>
             `;
           }
