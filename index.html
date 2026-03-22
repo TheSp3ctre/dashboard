@@ -173,7 +173,8 @@
       opacity: 0;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      will-change: transform, border-color, background;
+      will-change: transform, opacity;
+      transform: translateZ(0);
     }
 
     .kpi-card:hover {
@@ -399,6 +400,7 @@
       animation: slide-in 0.6s ease-out forwards;
       opacity: 0;
       will-change: transform, opacity;
+      transform: translateZ(0);
     }
 
     .chart-card:nth-child(1) {
@@ -1666,8 +1668,8 @@
     function drawLineChart(highlightIdx = -1) {
       const canvas = document.getElementById('lineChart');
       const ctx = canvas.getContext('2d');
-      const W = canvas.offsetWidth;
-      const H = canvas.offsetHeight;
+      const W = canvas.clientWidth;
+      const H = canvas.clientHeight;
       if (canvas.width !== W || canvas.height !== H) {
         canvas.width = W; canvas.height = H;
       }
@@ -1755,8 +1757,10 @@
     function drawRadar() {
       const canvas = document.getElementById('radarChart');
       const ctx = canvas.getContext('2d');
-      const size = Math.min(canvas.offsetWidth || 220, canvas.offsetHeight || 220);
-      canvas.width = size; canvas.height = size;
+      const size = Math.min(canvas.clientWidth || 220, canvas.clientHeight || 220);
+      if (canvas.width !== size || canvas.height !== size) {
+        canvas.width = size; canvas.height = size;
+      }
       const cx = size / 2, cy = size / 2, R = size * 0.28;
       ctx.clearRect(0, 0, size, size);
 
@@ -1845,8 +1849,8 @@
     function drawArea() {
       const canvas = document.getElementById('areaChart');
       const ctx = canvas.getContext('2d');
-      const W = canvas.offsetWidth;
-      const H = canvas.offsetHeight;
+      const W = canvas.clientWidth;
+      const H = canvas.clientHeight;
       if (canvas.width !== W || canvas.height !== H) {
         canvas.width = W; canvas.height = H;
       }
@@ -2102,8 +2106,18 @@
     }
 
     if (document.readyState === 'complete') init();
-    else window.addEventListener('load', init);
-    window.addEventListener('resize', init);
+    window.addEventListener('load', init);
+
+    function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    const debouncedInit = debounce(init, 150);
+    window.addEventListener('resize', debouncedInit);
 
     (function () {
       const sc = { "AM": "#0d2f60", "PA": "#0e3068", "MT": "#0c2c58", "BA": "#112e62", "MG": "#0f2e60", "GO": "#0d2c58", "MS": "#0b2a54", "TO": "#0e2e60", "MA": "#13366e", "PI": "#102e62", "CE": "#0d2e64", "RN": "#0c2c5c", "PB": "#0b2a58", "PE": "#0d2e62", "AL": "#0c2e60", "SE": "#0b2a5e", "RJ": "#112e62", "SP": "#133468", "PR": "#0f3064", "SC": "#0d2e60", "RS": "#0e326a", "RO": "#0b2852", "AC": "#09244e", "RR": "#0a2652", "AP": "#0b2854", "ES": "#0d2c60", "DF": "#1a4e8c" };
@@ -2202,12 +2216,31 @@
           SELECTED_BRANCH.customers.forEach((c) => {
             const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
             group.style.cursor = "pointer";
-            group.innerHTML = `
-              <circle class="bm-marker-node" cx="${c.x}" cy="${c.y}" r="8" fill="var(--magenta)" stroke="#fff" stroke-width="0.5" 
-                data-m="${c.name}" data-d="Dropsize Médio: ${c.dropsize}" />
-              <text x="${c.x}" y="${c.y}" font-family="Orbitron" font-size="5.5" fill="#fff" font-weight="900" text-anchor="middle" alignment-baseline="central" pointer-events="none">${c.dropsize}</text>
-              <text x="${c.x}" y="${c.y + 14}" font-family="Share Tech Mono" font-size="5" fill="rgba(200,230,255,0.8)" text-anchor="middle" pointer-events="none">Dropsize Médio</text>
-            `;
+            
+            const node = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            node.setAttribute("class", "bm-marker-node");
+            node.setAttribute("cx", c.x); node.setAttribute("cy", c.y); node.setAttribute("r", "8");
+            node.setAttribute("fill", "var(--magenta)"); node.setAttribute("stroke", "#fff"); node.setAttribute("stroke-width", "0.5");
+            node.dataset.m = c.name; node.dataset.d = "Dropsize Médio: " + c.dropsize;
+
+            const valText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            valText.setAttribute("x", c.x); valText.setAttribute("y", c.y);
+            valText.setAttribute("font-family", "Orbitron"); valText.setAttribute("font-size", "5.5");
+            valText.setAttribute("fill", "#fff"); valText.setAttribute("font-weight", "900");
+            valText.setAttribute("text-anchor", "middle"); valText.setAttribute("alignment-baseline", "central");
+            valText.setAttribute("pointer-events", "none");
+            valText.textContent = c.dropsize;
+
+            const lblText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            lblText.setAttribute("x", c.x); lblText.setAttribute("y", c.y + 14);
+            lblText.setAttribute("font-family", "Share Tech Mono"); lblText.setAttribute("font-size", "5");
+            lblText.setAttribute("fill", "rgba(200,230,255,0.8)");
+            lblText.setAttribute("text-anchor", "middle"); lblText.setAttribute("pointer-events", "none");
+            lblText.textContent = "Dropsize Médio";
+
+            group.appendChild(node);
+            group.appendChild(valText);
+            group.appendChild(lblText);
             fragment.appendChild(group);
           });
         }
@@ -2233,12 +2266,31 @@
           const branchGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
           branchGroup.style.cursor = "pointer";
           branchGroup.onclick = () => zoomToBranch(m);
-          branchGroup.innerHTML = `
-            <circle class="bm-ring-outer" cx="${m.x}" cy="${m.y}" r="9" style="animation-delay:${delay}" />
-            <circle class="bm-ring-mid" cx="${m.x}" cy="${m.y}" r="6" style="animation-delay:${delayMid}" />
-            <circle class="bm-marker-node bm-dot-green" cx="${m.x}" cy="${m.y}" r="5" data-m="${m.name}" data-d="${m.desc}" />
-            <circle class="bm-dot-white" cx="${m.x}" cy="${m.y}" r="2" pointer-events="none" />
-          `;
+
+          const r1 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          r1.setAttribute("class", "bm-ring-outer");
+          r1.setAttribute("cx", m.x); r1.setAttribute("cy", m.y); r1.setAttribute("r", "9");
+          r1.style.animationDelay = delay;
+
+          const r2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          r2.setAttribute("class", "bm-ring-mid");
+          r2.setAttribute("cx", m.x); r2.setAttribute("cy", m.y); r2.setAttribute("r", "6");
+          r2.style.animationDelay = delayMid;
+
+          const node = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          node.setAttribute("class", "bm-marker-node bm-dot-green");
+          node.setAttribute("cx", m.x); node.setAttribute("cy", m.y); node.setAttribute("r", "5");
+          node.dataset.m = m.name; node.dataset.d = m.desc;
+
+          const white = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          white.setAttribute("class", "bm-dot-white");
+          white.setAttribute("cx", m.x); white.setAttribute("cy", m.y); white.setAttribute("r", "2");
+          white.setAttribute("pointer-events", "none");
+
+          branchGroup.appendChild(r1);
+          branchGroup.appendChild(r2);
+          branchGroup.appendChild(node);
+          branchGroup.appendChild(white);
           fragment.appendChild(branchGroup);
         });
         g.appendChild(fragment);
