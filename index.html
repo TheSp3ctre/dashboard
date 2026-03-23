@@ -10,7 +10,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Share+Tech+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Share+Tech+Mono&family=Montserrat:wght@400;600;700&display=swap');
 
 
     :root {
@@ -948,25 +948,29 @@
 
     /* Botão de Upload nos Cards */
     .load-data-btn {
-      background: rgba(0, 229, 255, 0.1);
-      border: 1px solid rgba(0, 229, 255, 0.3);
+      background: rgba(0, 229, 255, 0.15);
+      border: 1px solid rgba(0, 229, 255, 0.5);
       color: var(--cyan);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
     .load-data-btn:hover {
       background: var(--cyan);
       color: var(--bg);
-      box-shadow: 0 0 10px var(--glow-c);
+      box-shadow: 0 0 15px var(--glow-c);
+      transform: translateY(-1px);
     }
 
     .hidden-input {
@@ -1170,7 +1174,7 @@
         <div class="card-header">
           <div class="card-title">Mapa de Operações</div>
           <button class="load-data-btn" onclick="document.getElementById('input-map').click()">
-            <i class="ph ph-file-code"></i> Carregar Dados
+            <i class="ph ph-file-code"></i> ADICIONAR EXCEL
           </button>
           <input type="file" id="input-map" class="hidden-input" accept=".xlsx, .xls, .csv, .json"
             onchange="importData(this, 'mapMarkers')">
@@ -1302,7 +1306,7 @@
             </div>
           </div>
           <button class="load-data-btn" onclick="document.getElementById('input-flow').click()" style="margin-top: -4px;">
-            <i class="ph ph-file-code"></i> Carregar Dados
+            <i class="ph ph-file-code"></i> ADICIONAR EXCEL
           </button>
           <input type="file" id="input-flow" class="hidden-input" accept=".xlsx, .xls, .csv, .json"
             onchange="importData(this, 'distributionFlow')">
@@ -1315,7 +1319,7 @@
         <div class="card-header">
           <div class="card-title">Eficiência Operacional</div>
           <button class="load-data-btn" onclick="document.getElementById('input-radar').click()">
-            <i class="ph ph-file-code"></i> Carregar Dados
+            <i class="ph ph-file-code"></i> ADICIONAR EXCEL
           </button>
           <input type="file" id="input-radar" class="hidden-input" accept=".xlsx, .xls, .csv, .json"
             onchange="importData(this, 'operationalEfficiency')">
@@ -1330,7 +1334,7 @@
         <div class="card-header">
           <div class="card-title">Crescimento de Entregas</div>
           <button class="load-data-btn" onclick="document.getElementById('input-growth').click()">
-            <i class="ph ph-file-code"></i> Carregar Dados
+            <i class="ph ph-file-code"></i> ADICIONAR EXCEL
           </button>
           <input type="file" id="input-growth" class="hidden-input" accept=".xlsx, .xls, .csv, .json"
             onchange="importData(this, 'deliveryGrowth')">
@@ -1346,7 +1350,7 @@
         <div class="card-header">
           <div class="card-title">Status da Frota de Tanques</div>
           <button class="load-data-btn" onclick="document.getElementById('input-fleet').click()">
-            <i class="ph ph-file-code"></i> Carregar Dados
+            <i class="ph ph-file-code"></i> ADICIONAR EXCEL
           </button>
           <input type="file" id="input-fleet" class="hidden-input" accept=".xlsx, .xls, .csv, .json"
             onchange="importData(this, 'fleetStatus')">
@@ -1368,7 +1372,7 @@
         <div class="card-header">
           <div class="card-title">Tipo de Carga</div>
           <button class="load-data-btn" onclick="document.getElementById('input-load').click()">
-            <i class="ph ph-file-code"></i> Carregar Dados
+            <i class="ph ph-file-code"></i> ADICIONAR EXCEL
           </button>
           <input type="file" id="input-load" class="hidden-input" accept=".xlsx, .xls, .csv, .json"
             onchange="importData(this, 'loadTypes')">
