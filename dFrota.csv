@@ -1,0 +1,16 @@
+ID_Veiculo,ID_Filial,Status,Tipo_Veiculo,Capacidade_Kg
+V001,1,Operacional,Carreta,25000
+V002,1,Manutencao,Truck,15000
+V003,2,Operacional,Carreta,25000
+V004,2,Em Transito,Truck,15000
+V005,3,Operacional,Van,3500
+V006,4,Inativo,Carreta,25000
+V007,5,Operacional,Truck,15000
+V008,6,Em Carregamento,Carreta,25000
+V009,7,Operacional,Truck,15000
+V010,8,Stand-by,Van,3500
+V011,1,Operacional,Truck,15000
+V012,3,Operacional,Carreta,25000
+V013,9,Operacional,Truck,15000
+V014,10,Operacional,Van,3500
+V015,1,Em Transito,Truck,15000

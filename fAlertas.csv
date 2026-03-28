@@ -1,0 +1,7 @@
+Data,ID_Filial,Tipo_Alerta,Criticidade,Status_Resolucao
+2024-12-20,1,Temperatura Alta,Critico,Pendente
+2024-12-22,3,Pressão Baixa,Moderado,Resolvido
+2024-12-25,2,Falha Sensor,Critico,Pendente
+2024-12-26,5,Vazamento Detec,Critico,Em Analise
+2024-12-27,1,Manutencao Prev,Baixo,Agendado
+2024-12-28,9,Estoque Critico,Moderado,Pendente

@@ -1,0 +1,141 @@
+/* =========================================================
+   ARQUIVO DAX OTIMIZADO PARA POWER BI
+   DASHBOARD DE LOGÍSTICA / DISTRIBUIÇÃO
+   =========================================================
+   Instruções:
+   - Copie as medidas abaixo para o seu Power BI.
+   - Substitua os nomes das tabelas (como 'fEntregas', 'dCalendario')
+     e colunas pelos nomes reais do seu modelo de dados.
+   - Recomenda-se o uso de uma tabela de Calendário ('dCalendario').
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   1. MEDIDAS BASE (KPIs Principais)
+--------------------------------------------------------- */
+
+// Índice de Estoque Global
+Total_Estoque = SUM(fEstoque[Capacidade_Atual])
+
+// Quantidade de Tanques Ativos
+Qtd_Tanques_Ativos = 
+CALCULATE(
+    COUNT(dTanques[ID_Tanque]),
+    dTanques[Status] = "Ativo"
+)
+
+// Total de Entregas (Volume ou Quantidade)
+Total_Entregas = SUM(fEntregas[Volume_Entregue])
+
+// Alertas Críticos Ativos
+Qtd_Alertas_Criticos = 
+CALCULATE(
+    COUNTROWS(fAlertas),
+    fAlertas[Criticidade] = "Crítico",
+    fAlertas[Status_Resolucao] = "Pendente"
+)
+
+
+/* ---------------------------------------------------------
+   2. INTELIGÊNCIA DE TEMPO E CRESCIMENTO (Para Sparklines e Tendências)
+--------------------------------------------------------- */
+
+// Total Entregas no Mês Anterior
+Total_Entregas_Mes_Anterior = 
+CALCULATE(
+    [Total_Entregas],
+    DATEADD(dCalendario[Data], -1, MONTH)
+)
+
+// Crescimento de Entregas MoM (Month over Month) - Em Percentual
+Var_Entregas_MoM_% = 
+DIVIDE(
+    [Total_Entregas] - [Total_Entregas_Mes_Anterior], 
+    [Total_Entregas_Mes_Anterior], 
+    0
+)
+
+// Texto Formato Condicional (Para usar nos cards de destaque, ex: "+47%")
+Label_Crescimento_Entregas = 
+FORMAT([Var_Entregas_MoM_%], "+0.0%;-0.0%;0.0%")
+
+
+/* ---------------------------------------------------------
+   3. FLUXO DE DISTRIBUIÇÃO (Gráfico de Linhas Múltiplas)
+--------------------------------------------------------- */
+
+// Demanda Total Registrada/Prevista
+Demanda_Total = SUM(fDistribuicao[Demanda])
+
+// Capacidade Máxima de Atendimento das Bases
+Capacidade_Maxima = SUM(fDistribuicao[Capacidade_Maxima])
+
+// Taxa de Utilização da Capacidade (%)
+Taxa_Utilizacao_Base = 
+DIVIDE(
+    [Total_Entregas],
+    [Capacidade_Maxima],
+    0
+)
+
+
+/* ---------------------------------------------------------
+   4. STATUS DA FROTA E TIPOS DE CARGA (Gráficos de Donut)
+--------------------------------------------------------- */
+
+// Quantidade Total de Veículos
+Total_Veiculos = COUNTROWS(dFrota)
+
+// Quantidade de Veículos por Status Específico (Exemplo: Operacional)
+Frota_Operacional = 
+CALCULATE(
+    [Total_Veiculos],
+    dFrota[Status] = "Operacional"
+)
+
+// % de Frota Operacional sobre o Total
+%_Frota_Operacional = DIVIDE([Frota_Operacional], [Total_Veiculos], 0)
+
+// Separação por Tipos de Carga (Filtragem Estática Otimizada com KEEPFILTERS)
+Volume_GLP = CALCULATE([Total_Entregas], KEEPFILTERS(dProdutos[Tipo_Carga] = "GLP"))
+Volume_GNV = CALCULATE([Total_Entregas], KEEPFILTERS(dProdutos[Tipo_Carga] = "GNV"))
+Volume_GNL = CALCULATE([Total_Entregas], KEEPFILTERS(dProdutos[Tipo_Carga] = "GNL"))
+
+// Percentuais de Tipos de Carga (Para Labels ou Legend do Power BI)
+%_Carga_GLP = DIVIDE([Volume_GLP], [Total_Entregas], 0)
+
+
+/* ---------------------------------------------------------
+   5. EFICIÊNCIA OPERACIONAL (Gráfico de Radar)
+--------------------------------------------------------- */
+// Geralmente para gráficos de Radar usamos as médias de notas ou índices 
+// baseados nos eixos Custo, Tempo, Segurança, Estoque, etc.
+
+Media_Eficiencia_Realizada = AVERAGE(fEficiencia[Nota_Realizada])
+
+Media_Eficiencia_Meta = AVERAGE(fEficiencia[Nota_Meta])
+
+// GAP de Desempenho (Série 2 vs Série 1)
+Gap_Eficiencia = [Media_Eficiencia_Meta] - [Media_Eficiencia_Realizada]
+
+
+/* ---------------------------------------------------------
+   6. MAPA DE CALOR/LOCALIZAÇÃO (Para o Mapa do Brasil)
+--------------------------------------------------------- */
+
+// Concentração de Clientes (Dropsize Médio)
+Dropsize_Medio = AVERAGE(fClientes[Dropsize])
+
+// Volume Concentrado por Filial/Estado 
+Volume_Por_Filial = 
+CALCULATE(
+    [Total_Entregas],
+    ALLEXCEPT(dFiliais, dFiliais[Nome_Filial], dFiliais[Estado])
+)
+
+/* =========================================================
+   DICAS DE OTIMIZAÇÃO EXTRA:
+   - Use DIVIDE() no lugar de "/" para evitar divisão por zero (retorna BLANK automaticamente).
+   - Use variáveis (VAR) em medidas mais densas antes do RETURN, pois materializa o cálculo apenas uma vez na memória.
+   - Utilize a função KEEPFILTERS em CALCULATE quando você não quiser sobrescrever o filtro visual por completo.
+   ========================================================= */

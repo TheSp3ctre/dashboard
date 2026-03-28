@@ -1,0 +1,22 @@
+Data,ID_Filial,Tipo_Carga,Volume_Entregue,Qtd_Entregas,Status_Entrega
+2024-01-05,1,GLP,1250,12,Concluido
+2024-01-10,2,GNV,850,8,Concluido
+2024-01-15,3,GNL,2100,5,Atrasado
+2024-02-05,4,GLP,1300,10,Concluido
+2024-02-12,5,GNV,920,9,Concluido
+2024-02-20,6,GNL,1800,4,Concluido
+2024-03-05,1,GLP,1450,15,Concluido
+2024-03-12,7,GNV,780,7,Concluido
+2024-03-25,8,GLP,1100,11,Em Rota
+2024-04-10,9,GNV,950,10,Concluido
+2024-04-20,10,GNL,2400,6,Concluido
+2024-05-05,1,GLP,1600,18,Concluido
+2024-05-15,2,GNV,1100,12,Concluido
+2024-06-05,3,GNL,2800,8,Concluido
+2024-07-01,4,GLP,1900,14,Concluido
+2024-08-10,5,GNV,1300,15,Concluido
+2024-09-15,6,GNL,3200,10,Concluido
+2024-10-05,1,GLP,2200,22,Concluido
+2024-11-20,1,GNV,2500,25,Concluido
+2024-12-15,1,GLP,3100,30,Concluido
+2024-12-20,2,GNL,3500,12,Concluido
